@@ -1,26 +1,30 @@
-<?xml version="1.0" encoding="UTF-8"?> 
+<?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:context="http://www.springframework.org/schema/context"
 	xmlns:p="http://www.springframework.org/schema/p"
 	xmlns:aop="http://www.springframework.org/schema/aop"
 	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
 	http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd
 	http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.0.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd
-	http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.0.xsd">
+	http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd
+	http://www.springframework.org/schema/util
+	http://www.springframework.org/schema/util/spring-util-4.0.xsd">
 
 	<!-- 配置数据源 -->
 	<context:property-placeholder
 		location="classpath:conf/db.properties" />
 	<!-- 连接池 -->
 	<bean id="dataSource"
-		class="com.alibaba.druid.pool.DruidDataSource" init-method="init" destroy-method="close">
+		class="com.alibaba.druid.pool.DruidDataSource" init-method="init"
+		destroy-method="close">
 		<property name="driverClassName" value="${jdbc.driver}"></property>
 		<property name="url" value="${jdbc.url}"></property>
-		<property name="username" value="${jdbc.username}"></property> 
-		<property name="password" value="${jdbc.password}"></property>   
-		
+		<property name="username" value="${jdbc.username}"></property>
+		<property name="password" value="${jdbc.password}"></property>
+
 		<!-- 初始化连接数量 -->
 		<property name="initialSize" value="${druid.initialSize}" />
 		<!-- 最大并发连接数 -->
@@ -72,6 +76,18 @@
 	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
 		<property name="basePackage" value="myMall.yurui.mapping"></property>
 	</bean>
-	
-		
+
+
+	<!-- 使用dubbo发布服务 -->
+	<!-- 提供方应用信息，用于计算依赖关系 -->
+	<dubbo:application name="myMall" />
+		<dubbo:registry protocol="zookeeper"
+		address="47.106.113.92:2181" />
+<!-- 	<dubbo:registry protocol="zookeeper"
+		address="192.168.25.154:2181,192.168.25.154:2182,192.168.25.154:2183" /> -->
+	<!-- 用dubbo协议在20880端口暴露服务 -->
+	<dubbo:protocol name="dubbo" port="20880" />
+	<!-- 声明需要暴露的服务接口 -->
+	<dubbo:service interface="myMall.yurui.service.TestService" ref="myMall.yurui.service.Impl.TestServiceImpl" />
+
 </beans>
